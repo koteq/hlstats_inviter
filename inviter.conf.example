@@ -1,0 +1,42 @@
+# Steam account to invite candidates from
+# Steam Guard must be disabled for this account
+# check https://store.steampowered.com/twofactor/manage
+# Also this account must not be Limited
+# https://support.steampowered.com/kb_article.php?ref=3330-IAGK-7663
+# You may try to search inernet for steam key giveaways
+[inviter]
+username = inviter
+password = P48NMaSe
+# To find out group_id navigate your browser to a page of this group on steamcommunity.com
+# then press Ctrl+U to show page's source code and search (Ctrl+F) for `/joinchat/`
+# for example page https://steamcommunity.com/groups/Valve have `/joinchat/103582791429521412`
+target_group_id = 103582791429521412
+
+
+# There is no official information about batch invite limitations
+# Some random sources around the web thinks that the limit is ~270 invitations per day
+[limits]
+max_errors_per_run = 10
+max_invitations_per_run = 250
+# in seconds
+pause_between_invitations = 3000
+
+
+# This script will use hlstats database as a source to find candidate to invite
+# Additional information will be stored in table called `inviter`
+# see http://mysqlclient.readthedocs.io/en/stable/user_guide.html#functions-and-attributes
+[hlststats_connection]
+host = localhost
+#port = 3306
+user = hlststats
+passwd = hlststats
+db = hlststats
+charset = utf8
+
+
+# I think it's a good idea to only invite active players who spent some time on servers
+[hlststats_candidates]
+# in seconds
+min_connection_time = 57600
+# in percents
+min_activity = 90
