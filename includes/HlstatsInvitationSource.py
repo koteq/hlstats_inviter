@@ -36,7 +36,7 @@ class HlstatsInvitationSource(object):
         with self._db as cursor:
             with warnings.catch_warnings():
                 warnings.simplefilter('ignore')
-                result = cursor.execute("""
+                cursor.execute("""
                     SELECT
                         CAST(LEFT(puid.uniqueId, 1) AS UNSIGNED) +
                         CAST('76561197960265728' AS UNSIGNED) +
@@ -56,10 +56,10 @@ class HlstatsInvitationSource(object):
                       )
                     ORDER BY p.connection_time
                 """, (self._min_connection_time, self._min_activity, self._target_group_id))
-            row = result.fetchone()
+            row = cursor.fetchone()
             while row is not None:
                 yield Candidate(row[0], self)
-                row = result.fetchone()
+                row = cursor.fetchone()
 
     def _init_schema(self):
         with self._db as cursor:
