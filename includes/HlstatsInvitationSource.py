@@ -38,8 +38,8 @@ class HlstatsInvitationSource(object):
                 CAST(MID(puid.uniqueId, 3, 10) * 2 AS UNSIGNED) AS community_id
             FROM hlstats_players p
             INNER JOIN hlstats_playeruniqueids puid ON puid.playerId = p.playerId
-            WHERE p.connection_time > %s
-              AND p.activity > %s
+            WHERE p.connection_time >= %s
+              AND p.activity >= %s
               AND NOT EXISTS (
                 SELECT *
                 FROM inviter i
