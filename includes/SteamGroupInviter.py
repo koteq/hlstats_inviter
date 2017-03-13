@@ -7,7 +7,7 @@ import xml.etree.ElementTree as etree
 
 from Crawler import Crawler
 
-logger = logging.getLogger('inviter')
+logger = logging.getLogger()
 
 
 class SteamGroupInviter(object):
@@ -22,7 +22,6 @@ class SteamGroupInviter(object):
         """
         :param community_id: for example 76561197960287930
         """
-        logger.info('Inviting %s' % community_id)
         session_id = self._get_session_id(community_id)
         params = {'xml': 1,
                   'type': 'groupInvite',
@@ -38,7 +37,7 @@ class SteamGroupInviter(object):
             raise Exception(results.text)
 
     def _auth(self):
-        logger.info('Auth to the steamcommunity.com')
+        logger.debug('Auth to the steamcommunity.com')
         logger.debug('Requesting rsa key')
         params = {'username': self.username}
         response = self.crawler.ajax('https://steamcommunity.com/login/getrsakey/', params)

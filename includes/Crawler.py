@@ -3,7 +3,7 @@ import urllib
 import urllib2
 import cookielib
 
-logger = logging.getLogger('inviter')
+logger = logging.getLogger()
 
 
 class Crawler(object):
@@ -24,7 +24,7 @@ class Crawler(object):
             data = urllib.urlencode(data)
             headers['Content-type'] = 'application/x-www-form-urlencoded'
         self.opener.addheaders = headers.items()
-        logger.debug('Requesting %s' % url)
+        logger.debug('Requesting %s', url)
         response = self.opener.open(url, data)
         return response
 

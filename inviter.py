@@ -23,18 +23,20 @@ def main():
         try:
             inviter.invite(str(candidate))
             candidate.invited()
+            logger.info('%s invited', candidate)
         except Exception as e:
-            logger.exception('Failed to send invite to %s due to %s' % (candidate, e))
             candidate.failed(str(e))
+            logger.exception('Unable to invite %s due to exception `%s`', candidate, e)
             errors_count += 1
             if errors_count >= config.getint('limits', 'max_errors_per_run'):
                 logger.warning('Max errors limit is reached')
-                return
+                break
 
         invitations_sent += 1
         if invitations_sent >= config.getint('limits', 'max_invitations_per_run'):
             logger.info('Max invitations limit is reached')
-            return
+            break
+    logger.info('Results: %d invitations sent, %d errors', invitations_sent, errors_count)
 
 if __name__ == '__main__':
     main()
