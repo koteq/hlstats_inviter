@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+import time
 import ConfigParser
 import logging.config
 
@@ -24,6 +25,7 @@ def main():
             inviter.invite(str(candidate))
             candidate.invited()
             logger.info('%s invited', candidate)
+            time.sleep(config.getfloat('limits', 'pause_between_invitations'))
         except Exception as e:
             candidate.failed(str(e))
             logger.exception('Unable to invite %s due to exception `%s`', candidate, e)

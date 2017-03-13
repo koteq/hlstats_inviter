@@ -19,7 +19,7 @@ target_group_id = 103582791429521412
 max_errors_per_run = 10
 max_invitations_per_run = 250
 # in seconds
-pause_between_invitations = 3000
+pause_between_invitations = 3.0
 
 
 # This script will use hlstats database as a source to find candidate to invite
