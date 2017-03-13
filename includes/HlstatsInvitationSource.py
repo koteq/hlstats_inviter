@@ -52,7 +52,7 @@ class HlstatsInvitationSource(object):
                                                CAST('76561197960265728' AS UNSIGNED) +
                                                CAST(MID(puid.uniqueId, 3, 10) * 2 AS UNSIGNED)
                           AND i.target_group_id = %s
-                          AND i.invited = 1
+                          AND (i.invited = 1 OR i.joined = 1 OR i.failed = 1)
                       )
                     ORDER BY p.connection_time
                 """, (self._min_connection_time, self._min_activity, self._target_group_id))
