@@ -11,7 +11,7 @@ def main():
     logger = logging.getLogger()
 
     config = ConfigParser.RawConfigParser()
-    config.read('inviter.cfg')
+    config.read('inviter.conf')
 
     inviter = SteamGroupInviter(**dict(config.items('inviter')))
     invite_candidates = HlstatsInvitationSource(config.get('inviter', 'target_group_id'),
