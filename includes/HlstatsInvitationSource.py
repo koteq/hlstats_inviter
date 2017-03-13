@@ -1,3 +1,5 @@
+import warnings
+
 import MySQLdb
 
 from includes.SteamGroupMembers import SteamGroupMembers
@@ -9,7 +11,7 @@ class Candidate(object):
         self._parent = parent
 
     def __repr__(self):
-        return self._community_id
+        return str(self._community_id)
 
     def invited(self):
         self._parent._invited(self)
@@ -32,26 +34,28 @@ class HlstatsInvitationSource(object):
 
     def __iter__(self):
         with self._db as cursor:
-            result = cursor.execute("""
-                SELECT
-                    CAST(LEFT(puid.uniqueId, 1) AS UNSIGNED) +
-                    CAST('76561197960265728' AS UNSIGNED) +
-                    CAST(MID(puid.uniqueId, 3, 10) * 2 AS UNSIGNED) AS community_id
-                FROM hlstats_players p
-                INNER JOIN hlstats_playeruniqueids puid ON puid.playerId = p.playerId
-                WHERE p.connection_time >= %s
-                  AND p.activity >= %s
-                  AND NOT EXISTS (
-                    SELECT *
-                    FROM inviter i
-                    WHERE i.community_id = CAST(LEFT(puid.uniqueId, 1) AS UNSIGNED) +
-                                           CAST('76561197960265728' AS UNSIGNED) +
-                                           CAST(MID(puid.uniqueId, 3, 10) * 2 AS UNSIGNED)
-                      AND i.target_group_id = %s
-                      AND i.invited = 1
-                  )
-                ORDER BY p.connection_time
-            """, (self._min_connection_time, self._min_activity, self._target_group_id))
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore')
+                result = cursor.execute("""
+                    SELECT
+                        CAST(LEFT(puid.uniqueId, 1) AS UNSIGNED) +
+                        CAST('76561197960265728' AS UNSIGNED) +
+                        CAST(MID(puid.uniqueId, 3, 10) * 2 AS UNSIGNED) AS community_id
+                    FROM hlstats_players p
+                    INNER JOIN hlstats_playeruniqueids puid ON puid.playerId = p.playerId
+                    WHERE p.connection_time >= %s
+                      AND p.activity >= %s
+                      AND NOT EXISTS (
+                        SELECT *
+                        FROM inviter i
+                        WHERE i.community_id = CAST(LEFT(puid.uniqueId, 1) AS UNSIGNED) +
+                                               CAST('76561197960265728' AS UNSIGNED) +
+                                               CAST(MID(puid.uniqueId, 3, 10) * 2 AS UNSIGNED)
+                          AND i.target_group_id = %s
+                          AND i.invited = 1
+                      )
+                    ORDER BY p.connection_time
+                """, (self._min_connection_time, self._min_activity, self._target_group_id))
             row = result.fetchone()
             while row is not None:
                 yield Candidate(row[0], self)
@@ -59,18 +63,20 @@ class HlstatsInvitationSource(object):
 
     def _init_schema(self):
         with self._db as cursor:
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS inviter (
-                    id INT NOT NULL AUTO_INCREMENT,
-                    community_id BIGINT NOT NULL,
-                    target_group_id BIGINT NOT NULL,
-                    invited TINYINT(1) NOT NULL DEFAULT '0',
-                    joined TINYINT(1) NOT NULL DEFAULT '0',
-                    failed TINYINT(1) NOT NULL DEFAULT '0',
-                    PRIMARY KEY (id),
-                    UNIQUE INDEX uniqueness (community_id, target_group_id)
-                )
-            """)
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore')
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS inviter (
+                        id INT NOT NULL AUTO_INCREMENT,
+                        community_id BIGINT NOT NULL,
+                        target_group_id BIGINT NOT NULL,
+                        invited TINYINT(1) NOT NULL DEFAULT '0',
+                        joined TINYINT(1) NOT NULL DEFAULT '0',
+                        failed TINYINT(1) NOT NULL DEFAULT '0',
+                        PRIMARY KEY (id),
+                        UNIQUE INDEX uniqueness (community_id, target_group_id)
+                    )
+                """)
 
     def _update_joined_members(self):
         with self._db as cursor:
