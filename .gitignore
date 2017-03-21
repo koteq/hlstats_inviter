@@ -1,2 +1,3 @@
 /inviter.conf
 *.log
+*.pyc
